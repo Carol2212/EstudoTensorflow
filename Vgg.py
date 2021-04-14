@@ -14,7 +14,8 @@ bd = np.mean(am, axis=0)
 bd1 = np.mean(am, axis=1)
 
 print(np.shape(bd))
-print(np.shape)
+bd1=np.reshape(bd1,(bd1.shape[0],1))
+
 
 
 #media = np.mean(banda0)
@@ -25,7 +26,6 @@ print(np.shape)
 #print(np.shape(saida))
 
 
-
 frames = np.load('imagedata.npy')
 tam = frames.shape[0]
 #print(tam)
@@ -33,22 +33,21 @@ frames = np.reshape(frames,(frames.shape[0],224,224,3))
 #print(np.shape(frames))
 tensor = frames
 
-for i in range(0,tam):
-    t_0 = tensor[:,:,:,0]
-    t_1 = tensor[:,:,:,1]
-    t_2 = tensor[:,:,:,2]
+t_0 = tensor[:,:,:,0]
+t_1 = tensor[:,:,:,1]
+t_2 = tensor[:,:,:,2]
 
-    media0 = np.mean(t_0)
-    media1 = np.mean(t_1)
-    media2 = np.mean(t_2)
+media0 = np.mean(t_0)
+media1 = np.mean(t_1)
+media2 = np.mean(t_2)
 
-    norm0= (t_0 - media0)/(np.std(t_0))
-    norm1= (t_1 - media1)/(np.std(t_1))
-    norm2= (t_2 - media2)/(np.std(t_2))
+norm0= (t_0 - media0)/(np.std(t_0))
+norm1= (t_1 - media1)/(np.std(t_1))
+norm2= (t_2 - media2)/(np.std(t_2))
 
-    tensor[:,:,:,0] = norm0
-    tensor[:,:,:,1] = norm1
-    tensor[:,:,:,2] = norm2
+tensor[:,:,:,0] = norm0
+tensor[:,:,:,1] = norm1
+tensor[:,:,:,2] = norm2
 
     
 #print(np.shape(tensor))
@@ -58,14 +57,16 @@ dim2=tensor.shape[1]
 #print(dim2)
 
 #----------------------------------------------------------------------------------
-from keras.applications.vgg16 import VGG16
-from keras.models import Sequential
-from keras.layers import GlobalAveragePooling2D, Dense
+
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import GlobalAveragePooling2D, Dense
 import tensorflow 
 
-convolutional_layer = VGG16(weights='imagenet', include_top=False, input_shape= tensor )
 
 def modelo():
+    convolutional_layer = VGG16(weights='imagenet', include_top=False, input_shape= (224,224,3) )
+
     model_layer = Sequential()
 
     for layer in convolutional_layer.layers[:]:
@@ -89,8 +90,10 @@ model.summary()
 
 #saida = np.asarray(am.shape[0],bd)
 
+print(np.shape(tensor))
+print(np.shape(bd1))
 
-model.fit( tensor, bd1 ,epochs=5)
+model.fit( tensor, bd1 ,epochs= 20 )
 
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
